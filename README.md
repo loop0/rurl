@@ -14,9 +14,9 @@ $ rurl examples/whatismyip.json
 ```
 
 ## TODO
-- [] body from file
-- [] status code
-- [] better error handling
+- [ ] body from file
+- [ ] status code
+- [ ] better error handling
 
 
 ## Motivation
