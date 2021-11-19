@@ -1,15 +1,12 @@
-
+use reqwest;
 use serde::Deserialize;
 use serde_json::{Map, Value};
 use std::error::Error;
 use std::fs::File;
-use std::io::{self, Write, BufReader};
-use reqwest;
+use std::io::{self, BufReader, Write};
 
 #[macro_use]
 extern crate clap;
-
-
 
 #[derive(Deserialize, Debug)]
 struct RequestConfig {
@@ -26,7 +23,7 @@ fn read_request_config(path: String) -> Result<RequestConfig, Box<dyn Error>> {
     Ok(config)
 }
 
-fn kurl(config: RequestConfig, verbose: bool) -> Result<(), Box<dyn Error>> {
+fn rurl(config: RequestConfig, verbose: bool) -> Result<(), Box<dyn Error>> {
     let client = reqwest::blocking::Client::new();
     let mut stdout = io::stdout();
     let mut stderr = io::stderr();
@@ -34,13 +31,9 @@ fn kurl(config: RequestConfig, verbose: bool) -> Result<(), Box<dyn Error>> {
 
     // select correct method
     match config.method.as_str() {
-        "get" => {
-            request = client.get(config.url)
-        }
-        "post" => {
-            request = client.post(config.url)
-        }
-        _ => panic!("Unsupported http method")
+        "get" => request = client.get(config.url),
+        "post" => request = client.post(config.url),
+        _ => panic!("Unsupported http method"),
     }
 
     // set headers
@@ -51,13 +44,10 @@ fn kurl(config: RequestConfig, verbose: bool) -> Result<(), Box<dyn Error>> {
             }
         }
     }
-    
-    
     // set body
     if let Some(body) = config.body {
         request = request.body(body);
     }
-    
     // execute the request
     let response = request.send()?;
     if verbose {
@@ -71,18 +61,19 @@ fn kurl(config: RequestConfig, verbose: bool) -> Result<(), Box<dyn Error>> {
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let args = clap_app!(app => 
+    let args = clap_app!(app =>
         (name: "rurl")
         (version: "0.1.0")
         (author: "Bruno Ribeiro da Silva <bruno.devpod@gmail.com>")
         (about: "Like curl but with configuration by json files")
         (@arg VERBOSE: -v --verbose "Enables verbose mode")
         (@arg CONFIG: +required "Sets the input file to use for the request configuration")
-    ).get_matches();
+    )
+    .get_matches();
 
     let verbose = args.is_present("VERBOSE");
     let config_path = String::from(args.value_of("CONFIG").unwrap());
     let config = read_request_config(config_path)?;
-    kurl(config, verbose)?;
+    rurl(config, verbose)?;
     Ok(())
 }

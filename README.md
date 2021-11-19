@@ -6,6 +6,14 @@ from there.
 This tools if far from being feature complete. The verbose mode outputs the
 response headers to the stderr so you can still redirect the output to a file.
 
+## Install
+
+### macOS (homebrew)
+```
+brew tap loop0/rurl
+brew install rurl
+```
+
 ## Usage
 
 ```sh
