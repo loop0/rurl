@@ -16,6 +16,8 @@ jobs:
             archive: tar.gz
     steps:
       - uses: actions/checkout@master
+        with:
+          ref: ${{ github.event.release.tag_name }}
       - name: Compile and release
         uses: rust-build/rust-build.action@latest
         env:
