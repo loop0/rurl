@@ -2,7 +2,7 @@
 authors = ["Bruno Ribeiro <root@loop0.sh>"]
 edition = "2018"
 name = "rurl"
-version = "0.1.2"
+version = "0.1.3"
 
 [dependencies]
 clap = "2.33"

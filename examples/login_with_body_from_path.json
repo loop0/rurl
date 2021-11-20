@@ -5,6 +5,6 @@
         "Content-Type": "application/x-www-form-urlencoded"
     },
     "body": {
-        "content": "username=bruno&password=test"
+        "path": "./examples/login_body_wrong.txt"
     }
 }

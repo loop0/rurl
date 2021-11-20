@@ -4,6 +4,7 @@ use serde_json::{Map, Value};
 use std::error::Error;
 use std::fs::File;
 use std::io::{self, BufReader, Write};
+use std::path::Path;
 
 #[macro_use]
 extern crate clap;
@@ -13,7 +14,13 @@ struct RequestConfig {
     url: String,
     method: String,
     headers: Option<Map<String, Value>>,
-    body: Option<String>,
+    body: Option<RequestBody>,
+}
+
+#[derive(Deserialize, Debug)]
+struct RequestBody {
+    content: Option<String>,
+    path: Option<String>,
 }
 
 fn read_request_config(path: String) -> Result<RequestConfig, Box<dyn Error>> {
@@ -46,7 +53,16 @@ fn rurl(config: RequestConfig, verbose: bool) -> Result<(), Box<dyn Error>> {
     }
     // set body
     if let Some(body) = config.body {
-        request = request.body(body);
+        if let Some(content) = body.content {
+            request = request.body(content);
+        } else if let Some(body_path) = body.path {
+            let path = Path::new(&body_path);
+            let body_file = match File::open(path) {
+                Err(_) => panic!("Request body file not found! File path: {}", path.display()),
+                Ok(body_file) => body_file,
+            };
+            request = request.body(body_file);
+        }
     }
     // execute the request
     let response = request.send()?;
@@ -63,7 +79,7 @@ fn rurl(config: RequestConfig, verbose: bool) -> Result<(), Box<dyn Error>> {
 fn main() -> Result<(), Box<dyn Error>> {
     let args = clap_app!(app =>
         (name: "rurl")
-        (version: "0.1.0")
+        (version: "0.1.3")
         (author: "Bruno Ribeiro da Silva <bruno.devpod@gmail.com>")
         (about: "Like curl but with configuration by json files")
         (@arg VERBOSE: -v --verbose "Enables verbose mode")
@@ -74,6 +90,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let verbose = args.is_present("VERBOSE");
     let config_path = String::from(args.value_of("CONFIG").unwrap());
     let config = read_request_config(config_path)?;
+
     rurl(config, verbose)?;
     Ok(())
 }
