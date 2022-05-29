@@ -1,0 +1,10 @@
+{
+    "url": "https://reqbin.com/echo/post/json",
+    "method": "post",
+    "headers": {
+        "Content-Type": "application/json"
+    },
+    "body": {
+        "path": "examples/echo.json"
+    }
+}
